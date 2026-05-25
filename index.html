@@ -7,1291 +7,786 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="LinkHabit" />
   <meta name="theme-color" content="#0a0a0a" />
-  <meta name="description" content="LinkHabit turns your Instagram saves and Twitter bookmarks into a daily reading habit — with streaks, AI summaries, and smart reminders. Rescue your bookmarks." />
+  <meta name="description" content="LinkHabit turns your Instagram saves and Twitter bookmarks into a daily reading habit — with streaks, AI summaries, and smart reminders. Free forever. Pro from $4.99/mo." />
   <meta property="og:title" content="LinkHabit — Rescue Your Bookmarks" />
   <meta property="og:description" content="Turn your social media saves into a daily reading streak. Stop letting great content die in your bookmarks." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://linkhabit.vercel.app" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="LinkHabit — Rescue Your Bookmarks" />
-  <meta name="twitter:description" content="Turn your social media saves into a daily reading streak." />
   <title>LinkHabit — Rescue Your Bookmarks</title>
-
-  <!-- PWA Manifest inline -->
   <link rel="manifest" href="/manifest.json" />
-
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet" />
-
   <style>
-    /* ─── RESET & TOKENS ─────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg:       #0a0a0a;
-      --bg2:      #111111;
-      --bg3:      #1a1a1a;
-      --border:   rgba(255,255,255,0.08);
-      --text:     #f0ece4;
-      --muted:    rgba(240,236,228,0.45);
-      --accent:   #ff5c1a;
-      --accent2:  #ffb347;
-      --green:    #22c55e;
-      --blue:     #3b82f6;
-      --pink:     #ec4899;
-      --radius:   16px;
-      --radius-sm:8px;
-      --font-serif: 'Instrument Serif', Georgia, serif;
-      --font-mono: 'DM Mono', monospace;
-      --font-sans: 'Geist', system-ui, sans-serif;
+      --bg:#0a0a0a; --bg2:#111111; --bg3:#1a1a1a;
+      --border:rgba(255,255,255,0.08); --text:#f0ece4;
+      --muted:rgba(240,236,228,0.48); --accent:#ff5c1a;
+      --accent2:#ffb347; --green:#22c55e; --gold:#f59e0b;
+      --r:16px; --r-sm:10px;
+      --serif:'Instrument Serif',Georgia,serif;
+      --mono:'DM Mono',monospace;
+      --sans:'Geist',system-ui,sans-serif;
     }
-
     html { scroll-behavior: smooth; }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font-sans);
-      font-size: 16px;
-      line-height: 1.6;
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    /* ─── GRAIN OVERLAY ──────────────────────────────────────────── */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 9999;
-      opacity: 0.6;
-    }
-
-    /* ─── LAYOUT HELPERS ─────────────────────────────────────────── */
-    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
-    .section { padding: 96px 0; }
-    .section-sm { padding: 64px 0; }
-
-    /* ─── NAV ────────────────────────────────────────────────────── */
-    nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      padding: 16px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--border);
-      background: rgba(10,10,10,0.85);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-    }
-
-    .nav-logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-    }
-
-    .nav-logo-icon {
-      width: 32px; height: 32px;
-      background: var(--accent);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-    }
-
-    .nav-logo-text {
-      font-family: var(--font-serif);
-      font-size: 20px;
-      color: var(--text);
-      letter-spacing: -0.02em;
-    }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .nav-link {
-      color: var(--muted);
-      text-decoration: none;
-      font-size: 14px;
-      padding: 8px 12px;
-      border-radius: var(--radius-sm);
-      transition: color 0.2s, background 0.2s;
-    }
-
-    .nav-link:hover { color: var(--text); background: var(--bg3); }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 24px;
-      border-radius: var(--radius-sm);
-      font-size: 14px;
-      font-weight: 500;
-      font-family: var(--font-sans);
-      cursor: pointer;
-      text-decoration: none;
-      transition: all 0.2s;
-      border: none;
-      outline: none;
-    }
-
-    .btn-primary {
-      background: var(--accent);
-      color: #fff;
-    }
-
-    .btn-primary:hover {
-      background: #ff7040;
-      transform: translateY(-1px);
-      box-shadow: 0 8px 32px rgba(255,92,26,0.35);
-    }
-
-    .btn-ghost {
-      background: transparent;
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-
-    .btn-ghost:hover {
-      background: var(--bg3);
-      border-color: rgba(255,255,255,0.15);
-    }
-
-    .btn-lg { padding: 16px 32px; font-size: 16px; border-radius: var(--radius); }
-
-    /* ─── HERO ───────────────────────────────────────────────────── */
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      padding-top: 80px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero-bg {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-    }
-
-    .hero-orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(80px);
-      opacity: 0.15;
-    }
-
-    .hero-orb-1 {
-      width: 600px; height: 600px;
-      background: var(--accent);
-      top: -200px; right: -200px;
-      animation: float1 8s ease-in-out infinite;
-    }
-
-    .hero-orb-2 {
-      width: 400px; height: 400px;
-      background: #7c3aed;
-      bottom: -100px; left: -100px;
-      animation: float2 10s ease-in-out infinite;
-    }
-
-    .hero-orb-3 {
-      width: 300px; height: 300px;
-      background: var(--accent2);
-      top: 40%; left: 40%;
-      opacity: 0.08;
-      animation: float3 12s ease-in-out infinite;
-    }
-
-    @keyframes float1 { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-30px) scale(1.05)} }
-    @keyframes float2 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(20px)} }
-    @keyframes float3 { 0%,100%{transform:translate(0,0)} 33%{transform:translate(20px,-20px)} 66%{transform:translate(-10px,15px)} }
-
-    .hero-content {
-      position: relative;
-      z-index: 1;
-      max-width: 820px;
-    }
-
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 14px;
-      background: rgba(255,92,26,0.12);
-      border: 1px solid rgba(255,92,26,0.25);
-      border-radius: 100px;
-      font-size: 13px;
-      font-family: var(--font-mono);
-      color: var(--accent2);
-      margin-bottom: 32px;
-      animation: fadeUp 0.6s ease both;
-    }
-
-    .pulse-dot {
-      width: 6px; height: 6px;
-      background: var(--accent);
-      border-radius: 50%;
-      animation: pulse 2s ease infinite;
-    }
-
-    @keyframes pulse {
-      0%,100%{opacity:1;transform:scale(1)}
-      50%{opacity:0.5;transform:scale(1.5)}
-    }
-
-    .hero-title {
-      font-family: var(--font-serif);
-      font-size: clamp(48px, 8vw, 96px);
-      line-height: 1.0;
-      letter-spacing: -0.03em;
-      margin-bottom: 24px;
-      animation: fadeUp 0.6s 0.1s ease both;
-    }
-
-    .hero-title em {
-      font-style: italic;
-      color: var(--accent);
-    }
-
-    .hero-sub {
-      font-size: clamp(16px, 2.5vw, 20px);
-      color: var(--muted);
-      max-width: 540px;
-      margin-bottom: 48px;
-      line-height: 1.7;
-      animation: fadeUp 0.6s 0.2s ease both;
-    }
-
-    .hero-cta {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
-      animation: fadeUp 0.6s 0.3s ease both;
-      margin-bottom: 64px;
-    }
-
-    .hero-social-proof {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      animation: fadeUp 0.6s 0.4s ease both;
-    }
-
-    .avatars {
-      display: flex;
-    }
-
-    .avatar {
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      border: 2px solid var(--bg);
-      margin-left: -8px;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--bg3);
-    }
-
-    .avatar:first-child { margin-left: 0; }
-
-    .proof-text {
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .proof-text strong { color: var(--text); }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ─── LIVE COUNTER ───────────────────────────────────────────── */
-    .live-counter {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 20px;
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      font-family: var(--font-mono);
-      font-size: 13px;
-      color: var(--muted);
-      animation: fadeUp 0.6s 0.5s ease both;
-    }
-
-    .counter-num {
-      font-size: 15px;
-      font-weight: 500;
-      color: var(--green);
-    }
-
-    /* ─── MOCK APP PREVIEW ───────────────────────────────────────── */
-    .hero-preview {
-      position: absolute;
-      right: -40px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 340px;
-      animation: fadeUp 0.8s 0.4s ease both, heroFloat 6s 1s ease-in-out infinite;
-    }
-
-    @keyframes heroFloat {
-      0%,100%{transform:translateY(-50%) rotate(-2deg)}
-      50%{transform:translateY(calc(-50% - 12px)) rotate(-2deg)}
-    }
-
-    @media (max-width: 900px) {
-      .hero-preview { display: none; }
-      .hero-content { max-width: 100%; }
-    }
-
-    .phone-frame {
-      background: var(--bg2);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 36px;
-      padding: 20px 16px;
-      box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .phone-notch {
-      width: 80px; height: 6px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 3px;
-      margin: 0 auto 16px;
-    }
-
-    .phone-streak-bar {
-      background: linear-gradient(135deg, rgba(255,92,26,0.15), rgba(255,179,71,0.1));
-      border: 1px solid rgba(255,92,26,0.2);
-      border-radius: var(--radius-sm);
-      padding: 12px 16px;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .streak-label { font-size: 11px; color: var(--muted); font-family: var(--font-mono); }
-    .streak-num { font-size: 28px; font-family: var(--font-serif); color: var(--accent); }
-    .streak-emoji { font-size: 24px; }
-
-    .phone-card {
-      background: var(--bg3);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 12px;
-      margin-bottom: 10px;
-    }
-
-    .card-platform {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 10px;
-      font-family: var(--font-mono);
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-
-    .platform-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-    }
-
-    .card-title { font-size: 12px; color: var(--text); margin-bottom: 6px; line-height: 1.4; }
-
-    .card-meta {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 10px;
-      color: var(--muted);
-      font-family: var(--font-mono);
-    }
-
-    .card-read-btn {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      padding: 3px 8px;
-      font-size: 10px;
-      font-family: var(--font-mono);
-      cursor: pointer;
-    }
-
-    /* ─── PROBLEM / SOLUTION ─────────────────────────────────────── */
-    .problem-section {
-      background: var(--bg2);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .split-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2px;
-    }
-
-    @media (max-width: 700px) { .split-grid { grid-template-columns: 1fr; } }
-
-    .split-card {
-      padding: 48px 40px;
-      background: var(--bg2);
-    }
-
-    .split-card:first-child { border-right: 1px solid var(--border); }
-
-    .split-card-label {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      margin-bottom: 20px;
-    }
-
-    .split-card-label.bad  { color: #ef4444; }
-    .split-card-label.good { color: var(--green); }
-
-    .split-card h3 {
-      font-family: var(--font-serif);
-      font-size: 28px;
-      margin-bottom: 16px;
-      line-height: 1.2;
-    }
-
-    .split-card p { color: var(--muted); line-height: 1.7; }
-
-    .graveyard-list { list-style: none; margin-top: 20px; }
-
-    .graveyard-list li {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 0;
-      font-size: 13px;
-      color: var(--muted);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .graveyard-list li:last-child { border-bottom: none; }
-
-    .grave-icon { font-size: 16px; }
-
-    /* ─── FEATURES ───────────────────────────────────────────────── */
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1px;
-      background: var(--border);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-    }
-
-    @media (max-width: 768px) { .features-grid { grid-template-columns: 1fr; } }
-
-    .feature-card {
-      background: var(--bg);
-      padding: 36px 32px;
-      transition: background 0.2s;
-    }
-
-    .feature-card:hover { background: var(--bg2); }
-
-    .feature-icon {
-      width: 48px; height: 48px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      margin-bottom: 20px;
-      border: 1px solid var(--border);
-    }
-
-    .feature-card h4 {
-      font-family: var(--font-serif);
-      font-size: 20px;
-      margin-bottom: 10px;
-      line-height: 1.2;
-    }
-
-    .feature-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
-
-    /* ─── HOW IT WORKS ───────────────────────────────────────────── */
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 32px;
-      position: relative;
-    }
-
-    @media (max-width: 900px) { .steps { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 500px) { .steps { grid-template-columns: 1fr; } }
-
-    .steps::before {
-      content: '';
-      position: absolute;
-      top: 28px;
-      left: 10%;
-      right: 10%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--border), transparent);
-    }
-
-    @media (max-width: 900px) { .steps::before { display: none; } }
-
-    .step {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
-    .step-num {
-      width: 56px; height: 56px;
-      border-radius: 50%;
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-mono);
-      font-size: 13px;
-      color: var(--accent);
-      margin-bottom: 20px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .step h4 {
-      font-family: var(--font-serif);
-      font-size: 18px;
-      margin-bottom: 8px;
-    }
-
-    .step p { font-size: 13px; color: var(--muted); line-height: 1.6; }
-
-    /* ─── PLATFORMS ──────────────────────────────────────────────── */
-    .platforms-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 16px;
-    }
-
-    .platform-badge {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 20px;
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      font-size: 14px;
-      font-weight: 500;
-      transition: all 0.2s;
-      cursor: default;
-    }
-
-    .platform-badge:hover {
-      border-color: rgba(255,255,255,0.2);
-      background: var(--bg3);
-      transform: translateY(-2px);
-    }
-
-    .platform-badge span { font-size: 20px; }
-
-    /* ─── STREAK SHOWCASE ────────────────────────────────────────── */
-    .streak-showcase {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 40px;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .streak-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
-      margin-top: 24px;
-    }
-
-    .streak-day {
-      aspect-ratio: 1;
-      border-radius: 4px;
-      background: var(--bg3);
-      border: 1px solid var(--border);
-      transition: all 0.3s;
-      cursor: pointer;
-      position: relative;
-    }
-
-    .streak-day.read { background: rgba(34,197,94,0.25); border-color: rgba(34,197,94,0.4); }
-    .streak-day.fire { background: rgba(255,92,26,0.35); border-color: rgba(255,92,26,0.5); }
-    .streak-day:hover { transform: scale(1.15); z-index: 1; }
-
-    .streak-day-label {
-      font-size: 8px;
-      font-family: var(--font-mono);
-      color: var(--muted);
-      text-align: center;
-      margin-bottom: 4px;
-    }
-
-    /* ─── SECURITY BADGE ─────────────────────────────────────────── */
-    .security-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-    }
-
-    @media (max-width: 600px) { .security-grid { grid-template-columns: 1fr; } }
-
-    .security-card {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 24px;
-      display: flex;
-      gap: 16px;
-    }
-
-    .security-icon { font-size: 24px; flex-shrink: 0; }
-
-    .security-card h5 { font-size: 14px; margin-bottom: 4px; }
-    .security-card p  { font-size: 12px; color: var(--muted); line-height: 1.5; }
-
-    /* ─── SECTION HEADERS ────────────────────────────────────────── */
-    .section-tag {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--accent);
-      margin-bottom: 16px;
-      display: block;
-    }
-
-    .section-title {
-      font-family: var(--font-serif);
-      font-size: clamp(32px, 5vw, 52px);
-      line-height: 1.1;
-      letter-spacing: -0.02em;
-      margin-bottom: 16px;
-    }
-
-    .section-desc {
-      font-size: 16px;
-      color: var(--muted);
-      max-width: 520px;
-      line-height: 1.7;
-      margin-bottom: 48px;
-    }
-
-    /* ─── CTA SECTION ────────────────────────────────────────────── */
-    .cta-section {
-      text-align: center;
-      background: var(--bg2);
-      border-top: 1px solid var(--border);
-    }
-
-    .cta-section .section-title { max-width: 600px; margin: 0 auto 16px; }
-    .cta-section .section-desc  { margin: 0 auto 40px; }
-
-    .cta-section .btn-primary {
-      font-size: 18px;
-      padding: 18px 40px;
-      border-radius: var(--radius);
-    }
-
-    .input-row {
-      display: flex;
-      gap: 8px;
-      max-width: 440px;
-      margin: 0 auto 16px;
-    }
-
-    .email-input {
-      flex: 1;
-      padding: 14px 18px;
-      background: var(--bg);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: var(--radius-sm);
-      color: var(--text);
-      font-family: var(--font-sans);
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .email-input::placeholder { color: var(--muted); }
-    .email-input:focus { border-color: var(--accent); }
-
-    .cta-fine { font-size: 12px; color: var(--muted); }
-
-    /* ─── FOOTER ─────────────────────────────────────────────────── */
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 40px 24px;
-    }
-
-    .footer-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 24px;
-    }
-
-    .footer-links {
-      display: flex;
-      align-items: center;
-      gap: 24px;
-      flex-wrap: wrap;
-    }
-
-    .footer-link {
-      font-size: 13px;
-      color: var(--muted);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    .footer-link:hover { color: var(--text); }
-
-    .footer-copy { font-size: 12px; color: var(--muted); }
-
-    /* ─── SCROLL REVEAL ──────────────────────────────────────────── */
-    .reveal {
-      opacity: 0;
-      transform: translateY(24px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
-    }
-    .reveal.visible { opacity: 1; transform: none; }
-
-    .reveal-delay-1 { transition-delay: 0.1s; }
-    .reveal-delay-2 { transition-delay: 0.2s; }
-    .reveal-delay-3 { transition-delay: 0.3s; }
-
-    /* ─── TOAST ──────────────────────────────────────────────────── */
-    .toast {
-      position: fixed;
-      bottom: 32px;
-      left: 50%;
-      transform: translateX(-50%) translateY(80px);
-      background: var(--bg2);
-      border: 1px solid var(--green);
-      color: var(--text);
-      padding: 14px 24px;
-      border-radius: var(--radius-sm);
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      z-index: 999;
-      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-      white-space: nowrap;
-    }
-
-    .toast.show { transform: translateX(-50%) translateY(0); }
-
-    /* ─── MOBILE NAV ─────────────────────────────────────────────── */
-    @media (max-width: 600px) {
-      .nav-links .nav-link { display: none; }
-      .hero { padding-top: 70px; }
-      .section { padding: 64px 0; }
-      .split-card { padding: 32px 24px; }
-      .streak-showcase { padding: 28px 20px; }
-      .feature-card { padding: 28px 24px; }
-      .input-row { flex-direction: column; }
-    }
-
-    /* ─── DIVIDER ────────────────────────────────────────────────── */
-    .divider {
-      height: 1px;
-      background: var(--border);
-      margin: 0;
-    }
+    body { background:var(--bg); color:var(--text); font-family:var(--sans); font-size:16px; line-height:1.6; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
+    body::before { content:''; position:fixed; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events:none; z-index:9999; opacity:0.5; }
+
+    .container { max-width:1100px; margin:0 auto; padding:0 24px; }
+    .section    { padding:96px 0; }
+    .section-sm { padding:64px 0; }
+    .divider    { height:1px; background:var(--border); }
+
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:12px 24px; border-radius:var(--r-sm); font-size:14px; font-weight:500; font-family:var(--sans); cursor:pointer; text-decoration:none; transition:all 0.2s; border:none; outline:none; }
+    .btn-primary { background:var(--accent); color:#fff; }
+    .btn-primary:hover { background:#ff7040; transform:translateY(-1px); box-shadow:0 8px 32px rgba(255,92,26,0.35); }
+    .btn-ghost { background:transparent; color:var(--text); border:1px solid var(--border); }
+    .btn-ghost:hover { background:var(--bg3); border-color:rgba(255,255,255,0.18); }
+    .btn-lg { padding:16px 32px; font-size:16px; border-radius:var(--r); }
+
+    /* NAV */
+    nav { position:fixed; top:0; left:0; right:0; z-index:100; padding:14px 24px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); background:rgba(10,10,10,0.88); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); }
+    .nav-logo { display:flex; align-items:center; gap:10px; text-decoration:none; }
+    .nav-logo-icon { width:32px; height:32px; background:var(--accent); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; }
+    .nav-logo-text { font-family:var(--serif); font-size:20px; color:var(--text); letter-spacing:-0.02em; }
+    .nav-links { display:flex; align-items:center; gap:6px; }
+    .nav-link { color:var(--muted); text-decoration:none; font-size:14px; padding:7px 12px; border-radius:var(--r-sm); transition:color 0.2s,background 0.2s; }
+    .nav-link:hover { color:var(--text); background:var(--bg3); }
+    @media(max-width:600px){ .nav-links .nav-link{display:none;} }
+
+    /* HERO */
+    .hero { min-height:100vh; display:flex; align-items:center; padding-top:80px; position:relative; overflow:hidden; }
+    .orb { position:absolute; border-radius:50%; filter:blur(90px); opacity:0.13; pointer-events:none; }
+    .orb-1 { width:600px; height:600px; background:var(--accent); top:-200px; right:-180px; animation:f1 9s ease-in-out infinite; }
+    .orb-2 { width:400px; height:400px; background:#7c3aed; bottom:-100px; left:-100px; animation:f2 11s ease-in-out infinite; }
+    .orb-3 { width:280px; height:280px; background:var(--accent2); top:45%; left:42%; opacity:0.07; animation:f3 13s ease-in-out infinite; }
+    @keyframes f1{0%,100%{transform:translateY(0)}50%{transform:translateY(-28px)}}
+    @keyframes f2{0%,100%{transform:translateY(0)}50%{transform:translateY(22px)}}
+    @keyframes f3{0%,100%{transform:translate(0,0)}33%{transform:translate(18px,-18px)}66%{transform:translate(-12px,14px)}}
+    .hero-content { position:relative; z-index:1; max-width:780px; }
+    .hero-badge { display:inline-flex; align-items:center; gap:8px; padding:6px 14px; background:rgba(255,92,26,0.1); border:1px solid rgba(255,92,26,0.22); border-radius:100px; font-size:13px; font-family:var(--mono); color:var(--accent2); margin-bottom:28px; animation:fadeUp 0.6s ease both; }
+    .pulse { width:6px; height:6px; background:var(--accent); border-radius:50%; animation:pulse 2s ease infinite; }
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(1.6)}}
+    .hero-title { font-family:var(--serif); font-size:clamp(46px,8vw,92px); line-height:1.0; letter-spacing:-0.03em; margin-bottom:22px; animation:fadeUp 0.6s 0.1s ease both; }
+    .hero-title em { font-style:italic; color:var(--accent); }
+    .hero-sub { font-size:clamp(15px,2.5vw,19px); color:var(--muted); max-width:520px; margin-bottom:44px; line-height:1.75; animation:fadeUp 0.6s 0.2s ease both; }
+    .hero-cta { display:flex; align-items:center; flex-wrap:wrap; gap:14px; animation:fadeUp 0.6s 0.3s ease both; margin-bottom:48px; }
+    .live-counter { display:inline-flex; align-items:center; gap:12px; padding:10px 18px; background:var(--bg2); border:1px solid var(--border); border-radius:var(--r-sm); font-family:var(--mono); font-size:13px; color:var(--muted); animation:fadeUp 0.6s 0.45s ease both; }
+    .counter-num { font-size:15px; font-weight:500; color:var(--green); }
+    .hero-phone { position:absolute; right:-30px; top:50%; transform:translateY(-50%) rotate(-2deg); width:320px; animation:fadeUp 0.9s 0.4s ease both,hf 6s 1.5s ease-in-out infinite; }
+    @keyframes hf{0%,100%{transform:translateY(-50%) rotate(-2deg)}50%{transform:translateY(calc(-50% - 14px)) rotate(-2deg)}}
+    @media(max-width:880px){.hero-phone{display:none;}.hero-content{max-width:100%;}}
+    .phone { background:var(--bg2); border:1px solid rgba(255,255,255,0.12); border-radius:34px; padding:18px 14px; box-shadow:0 40px 80px rgba(0,0,0,0.65),0 0 0 1px rgba(255,255,255,0.04); }
+    .phone-notch { width:72px; height:5px; background:rgba(255,255,255,0.1); border-radius:3px; margin:0 auto 14px; }
+    .ph-streak { background:linear-gradient(135deg,rgba(255,92,26,0.14),rgba(255,179,71,0.08)); border:1px solid rgba(255,92,26,0.2); border-radius:var(--r-sm); padding:11px 14px; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; }
+    .ph-label{font-size:10px;color:var(--muted);font-family:var(--mono);}
+    .ph-num{font-size:26px;font-family:var(--serif);color:var(--accent);}
+    .ph-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px;margin-bottom:8px;}
+    .ph-plat{display:flex;align-items:center;gap:5px;font-size:9px;font-family:var(--mono);color:var(--muted);margin-bottom:6px;}
+    .ph-dot{width:5px;height:5px;border-radius:50%;}
+    .ph-ttl{font-size:11px;color:var(--text);margin-bottom:5px;line-height:1.4;}
+    .ph-meta{display:flex;align-items:center;justify-content:space-between;font-size:9px;color:var(--muted);font-family:var(--mono);}
+    .ph-btn{background:var(--accent);color:#fff;border:none;border-radius:3px;padding:2px 7px;font-size:9px;font-family:var(--mono);cursor:pointer;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+    .tag{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.13em;color:var(--accent);margin-bottom:14px;display:block;}
+    .s-title{font-family:var(--serif);font-size:clamp(30px,5vw,50px);line-height:1.1;letter-spacing:-0.025em;margin-bottom:14px;}
+    .s-desc{font-size:16px;color:var(--muted);max-width:500px;line-height:1.75;margin-bottom:48px;}
+
+    /* PROBLEM/SOLUTION */
+    .split{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--bg2);}
+    @media(max-width:680px){.split{grid-template-columns:1fr;}}
+    .split-card{padding:44px 38px;background:var(--bg2);}
+    .split-card:first-child{border-right:1px solid var(--border);}
+    .split-label{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:18px;}
+    .split-label.bad{color:#ef4444;} .split-label.good{color:var(--green);}
+    .split-card h3{font-family:var(--serif);font-size:26px;margin-bottom:14px;line-height:1.2;}
+    .split-card p{color:var(--muted);line-height:1.75;}
+    .grave-list{list-style:none;margin-top:18px;}
+    .grave-list li{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:13px;color:var(--muted);border-bottom:1px solid var(--border);}
+    .grave-list li:last-child{border-bottom:none;}
+    @media(max-width:680px){.split-card{padding:32px 22px;}}
+
+    /* PLATFORMS */
+    .plat-row{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;}
+    .plat-badge{display:flex;align-items:center;gap:9px;padding:11px 18px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-sm);font-size:14px;font-weight:500;transition:all 0.2s;cursor:default;}
+    .plat-badge:hover{border-color:rgba(255,255,255,0.2);background:var(--bg3);transform:translateY(-2px);}
+    .plat-badge span{font-size:18px;}
+    .tier-tag{font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:4px;margin-left:4px;}
+    .tier-free{background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.25);}
+    .tier-pro{background:rgba(255,92,26,0.12);color:var(--accent2);border:1px solid rgba(255,92,26,0.22);}
+
+    /* FEATURES */
+    .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+    @media(max-width:740px){.feat-grid{grid-template-columns:1fr;}}
+    .feat-card{background:var(--bg);padding:34px 30px;transition:background 0.2s;}
+    .feat-card:hover{background:var(--bg2);}
+    .feat-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:21px;margin-bottom:18px;border:1px solid var(--border);}
+    .feat-card h4{font-family:var(--serif);font-size:19px;margin-bottom:8px;line-height:1.2;}
+    .feat-card p{font-size:13px;color:var(--muted);line-height:1.7;}
+
+    /* HOW IT WORKS */
+    .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;position:relative;}
+    @media(max-width:860px){.steps{grid-template-columns:repeat(2,1fr);}}
+    @media(max-width:480px){.steps{grid-template-columns:1fr;}}
+    .steps::before{content:'';position:absolute;top:27px;left:8%;right:8%;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);}
+    @media(max-width:860px){.steps::before{display:none;}}
+    .step{display:flex;flex-direction:column;align-items:flex-start;}
+    .step-num{width:54px;height:54px;border-radius:50%;background:var(--bg2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;color:var(--accent);margin-bottom:18px;position:relative;z-index:1;}
+    .step h4{font-family:var(--serif);font-size:17px;margin-bottom:7px;}
+    .step p{font-size:13px;color:var(--muted);line-height:1.65;}
+
+    /* SECURITY */
+    .sec-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+    @media(max-width:580px){.sec-grid{grid-template-columns:1fr;}}
+    .sec-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-sm);padding:22px;display:flex;gap:14px;}
+    .sec-card h5{font-size:14px;margin-bottom:4px;}
+    .sec-card p{font-size:12px;color:var(--muted);line-height:1.55;}
+
+    /* PRICING */
+    .billing-toggle{display:inline-flex;align-items:center;background:var(--bg2);border:1px solid var(--border);border-radius:100px;padding:4px;margin-bottom:48px;gap:2px;}
+    .bill-btn{padding:8px 20px;border-radius:100px;font-size:13px;font-family:var(--mono);cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all 0.2s;}
+    .bill-btn.active{background:var(--bg3);color:var(--text);}
+    .save-badge{display:inline-block;background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.25);border-radius:100px;padding:3px 10px;font-size:11px;font-family:var(--mono);margin-left:8px;}
+    .pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+    @media(max-width:860px){.pricing-grid{grid-template-columns:1fr;}}
+    .plan{background:var(--bg);padding:36px 30px;display:flex;flex-direction:column;position:relative;transition:background 0.2s;}
+    .plan:hover{background:var(--bg2);}
+    .plan.popular{background:var(--bg2);}
+    .popular-badge{position:absolute;top:20px;right:20px;background:var(--accent);color:#fff;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;padding:4px 10px;border-radius:100px;}
+    .plan-name{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:14px;}
+    .plan-price{font-family:var(--serif);font-size:52px;line-height:1;letter-spacing:-0.03em;margin-bottom:4px;}
+    .plan-price sup{font-size:22px;vertical-align:super;}
+    .plan-price span{font-size:16px;color:var(--muted);font-family:var(--sans);}
+    .plan-price-orig{font-size:13px;color:var(--muted);text-decoration:line-through;margin-bottom:4px;font-family:var(--mono);}
+    .plan-period{font-size:12px;color:var(--muted);margin-bottom:24px;font-family:var(--mono);}
+    .plan-desc{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:28px;}
+    .plan-features{list-style:none;margin-bottom:32px;flex:1;}
+    .plan-features li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--muted);padding:7px 0;border-bottom:1px solid var(--border);line-height:1.5;}
+    .plan-features li:last-child{border-bottom:none;}
+    .check{color:var(--green);flex-shrink:0;} .cross{color:#ef4444;flex-shrink:0;}
+    .plan-features li.inc{color:var(--text);}
+    .plan-cta{margin-top:auto;}
+    .stripe-note{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:32px;font-size:12px;color:var(--muted);font-family:var(--mono);}
+
+    /* FAQ */
+    .faq-list{max-width:680px;margin:0 auto;}
+    .faq-item{border-bottom:1px solid var(--border);}
+    .faq-q{width:100%;background:none;border:none;color:var(--text);text-align:left;padding:20px 0;font-size:15px;font-family:var(--sans);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+    .faq-q:hover{color:var(--accent);}
+    .faq-icon{font-size:18px;flex-shrink:0;transition:transform 0.3s;color:var(--muted);}
+    .faq-item.open .faq-icon{transform:rotate(45deg);color:var(--accent);}
+    .faq-a{font-size:14px;color:var(--muted);line-height:1.75;max-height:0;overflow:hidden;transition:max-height 0.4s ease,padding 0.3s ease;}
+    .faq-item.open .faq-a{max-height:300px;padding-bottom:20px;}
+
+    /* ═══════════════════════════════════════
+       MAILERLITE SIGNUP SECTION
+    ═══════════════════════════════════════ */
+    .cta-section{text-align:center;background:var(--bg2);border-top:1px solid var(--border);}
+
+    /* Override MailerLite's white background to match our dark theme */
+    #mlb2-41720642.ml-form-embedContainer .ml-form-embedWrapper {
+      background-color: transparent !important;
+      border: none !important;
+      width: 100% !important;
+      max-width: 460px !important;
+      margin: 0 auto !important;
+    }
+    #mlb2-41720642.ml-form-embedContainer {
+      display: block !important;
+      width: 100% !important;
+    }
+    #mlb2-41720642.ml-form-embedContainer .ml-form-embedWrapper.embedForm {
+      max-width: 460px !important;
+      width: 100% !important;
+    }
+    /* Hide MailerLite's own heading/description — we have our own */
+    #mlb2-41720642.ml-form-embedContainer .ml-form-embedContent {
+      display: none !important;
+    }
+    /* Style the email input to match our design */
+    #mlb2-41720642.ml-form-embedContainer .ml-form-embedWrapper .ml-form-embedBody .ml-form-fieldRow input {
+      background-color: var(--bg) !important;
+      color: var(--text) !important;
+      border-color: rgba(255,255,255,0.14) !important;
+      border-radius: var(--r-sm) !important;
+      font-family: var(--sans) !important;
+      font-size: 15px !important;
+      padding: 14px 16px !important;
+      height: auto !important;
+    }
+    #mlb2-41720642.ml-form-embedContainer .ml-form-embedWrapper .ml-form-embedBody .ml-form-fieldRow input::placeholder {
+      color: var(--muted) !important;
+    }
+    #mlb2-41720642.ml-form-embedContainer .ml-form-embedWrapper .ml-form-embedBody .ml-form-fieldRow input:focus {
+      border-color: var(--accent) !important;
+      outline: none !important;
+    }
+    /* Style the submit button to match our design */
+    #mlb2-41720642.ml-form-embedContainer .ml-form-embedWrapper .ml-form-embedBody .ml-form-embedSubmit button {
+      background-color: var(--accent) !important;
+      border-radius: var(--r-sm) !important;
+      font-family: var(--sans) !important;
+      font-size: 15px !important;
+      font-weight: 600 !important;
+      padding: 14px 24px !important;
+      transition: background 0.2s, transform 0.2s !important;
+      letter-spacing: -0.01em !important;
+    }
+    #mlb2-41720642.ml-form-embedContainer .ml-form-embedWrapper .ml-form-embedBody .ml-form-embedSubmit button:hover {
+      background-color: #ff7040 !important;
+      transform: translateY(-1px) !important;
+    }
+    /* Success message styling */
+    #mlb2-41720642.ml-form-embedContainer .ml-form-successBody {
+      background: rgba(34,197,94,0.08) !important;
+      border: 1px solid rgba(34,197,94,0.25) !important;
+      border-radius: var(--r-sm) !important;
+      padding: 24px !important;
+    }
+    #mlb2-41720642.ml-form-embedContainer .ml-form-successBody .ml-form-successContent h4 {
+      color: var(--green) !important;
+      font-family: var(--serif) !important;
+      font-size: 22px !important;
+    }
+    #mlb2-41720642.ml-form-embedContainer .ml-form-successBody .ml-form-successContent p {
+      color: var(--muted) !important;
+      font-family: var(--sans) !important;
+    }
+    /* Remove MailerLite's body padding since we handle layout */
+    #mlb2-41720642.ml-form-embedContainer .ml-form-embedWrapper .ml-form-embedBody {
+      padding: 0 !important;
+    }
+    #mlb2-41720642.ml-form-embedContainer .ml-form-embedWrapper .ml-form-embedBody .ml-form-embedSubmit {
+      margin-bottom: 0 !important;
+    }
+    #mlb2-41720642.ml-form-embedContainer .ml-form-embedWrapper .ml-form-embedBody .ml-form-formContent {
+      margin-bottom: 10px !important;
+    }
+    /* Layout row: input + button side by side on desktop */
+    @media(min-width:521px) {
+      #mlb2-41720642.ml-form-embedContainer .ml-form-embedWrapper .ml-form-embedBody form {
+        display: flex !important;
+        gap: 8px !important;
+        align-items: flex-start !important;
+      }
+      #mlb2-41720642.ml-form-embedContainer .ml-form-embedWrapper .ml-form-embedBody .ml-form-formContent {
+        flex: 1 !important;
+        margin-bottom: 0 !important;
+      }
+      #mlb2-41720642.ml-form-embedContainer .ml-form-embedWrapper .ml-form-embedBody .ml-form-embedSubmit {
+        flex-shrink: 0 !important;
+        width: auto !important;
+        float: none !important;
+      }
+      #mlb2-41720642.ml-form-embedContainer .ml-form-embedWrapper .ml-form-embedBody .ml-form-embedSubmit button {
+        width: auto !important;
+        white-space: nowrap !important;
+      }
+    }
+
+    .cta-fine{font-size:12px;color:var(--muted);margin-top:12px;}
+    .stats-row{display:flex;align-items:center;justify-content:center;gap:32px;flex-wrap:wrap;margin-top:48px;}
+    .stat-div{width:1px;height:44px;background:var(--border);}
+    @media(max-width:500px){.stat-div{display:none;}}
+
+    /* FOOTER */
+    footer{border-top:1px solid var(--border);padding:36px 24px;}
+    .foot-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+    .foot-links{display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+    .foot-link{font-size:13px;color:var(--muted);text-decoration:none;transition:color 0.2s;}
+    .foot-link:hover{color:var(--text);}
+    .foot-copy{font-size:12px;color:var(--muted);}
+
+    /* REVEAL */
+    .reveal{opacity:0;transform:translateY(22px);transition:opacity 0.6s ease,transform 0.6s ease;}
+    .reveal.visible{opacity:1;transform:none;}
+    .rd1{transition-delay:0.1s;}.rd2{transition-delay:0.2s;}.rd3{transition-delay:0.3s;}
   </style>
 </head>
 <body>
 
-  <!-- NAV -->
-  <nav>
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">🔗</div>
+    <span class="nav-logo-text">LinkHabit</span>
+  </a>
+  <div class="nav-links">
+    <a href="#features" class="nav-link">Features</a>
+    <a href="#pricing"  class="nav-link">Pricing</a>
+    <a href="#faq"      class="nav-link">FAQ</a>
+    <a href="#signup"   class="btn btn-primary" style="padding:8px 16px;font-size:13px;">Rescue My Bookmarks →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
+  <div class="container" style="display:flex;align-items:center;width:100%;position:relative;">
+    <div class="hero-content">
+      <div class="hero-badge"><span class="pulse"></span>Now in public beta · Free forever</div>
+      <h1 class="hero-title">Stop letting<br/><em>great content</em><br/>die in your<br/>bookmarks.</h1>
+      <p class="hero-sub">LinkHabit converts your Instagram saves, Twitter/X bookmarks, and TikTok favourites into a daily reading streak — with AI summaries, streak shields, and smart reminders.</p>
+      <div class="hero-cta">
+        <a href="#signup"  class="btn btn-primary btn-lg">🔥 Rescue My Bookmarks →</a>
+        <a href="#pricing" class="btn btn-ghost btn-lg">See pricing</a>
+      </div>
+      <div class="live-counter">
+        <span class="pulse"></span>
+        <span>Bookmarks rescued today</span>
+        <span class="counter-num" id="liveCount">1,247</span>
+      </div>
+    </div>
+    <div class="hero-phone">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="ph-streak">
+          <div><div class="ph-label">CURRENT STREAK</div><div class="ph-num">47</div><div class="ph-label">days in a row 🔥</div></div>
+          <div style="font-size:26px">🏆</div>
+        </div>
+        <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-bottom:8px;">TODAY'S READS — 2 of 5</div>
+        <div class="ph-card">
+          <div class="ph-plat"><div class="ph-dot" style="background:#e1306c"></div>Instagram Save</div>
+          <div class="ph-ttl">10 lessons from building a $1M side project in 18 months</div>
+          <div class="ph-meta"><span>~4 min</span><button class="ph-btn">Read ✓</button></div>
+        </div>
+        <div class="ph-card" style="opacity:0.55">
+          <div class="ph-plat"><div class="ph-dot" style="background:#1da1f2"></div>Twitter/X</div>
+          <div class="ph-ttl">The compound effect in personal finance — a thread</div>
+          <div class="ph-meta"><span>~2 min</span><button class="ph-btn" style="background:var(--bg);color:var(--muted)">Pending</button></div>
+        </div>
+        <div style="height:6px"></div>
+        <div style="font-size:9px;color:var(--muted);text-align:center;font-family:var(--mono)">🔒 Read-only · Zero data selling</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PROBLEM / SOLUTION -->
+<section style="background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="split">
+    <div class="split-card">
+      <div class="split-label bad">⚰️ The Problem</div>
+      <h3>Your bookmarks are a graveyard.</h3>
+      <p>You save dozens of links a week with good intentions. Then life happens. 97% of saved links are never opened again.</p>
+      <ul class="grave-list">
+        <li>💀 "How to negotiate a raise" — saved 8 months ago</li>
+        <li>💀 "The morning routine that changed my life" — never read</li>
+        <li>💀 "Deep work: why focus is your superpower" — forgotten</li>
+        <li>💀 "10 investing principles for beginners" — still pending</li>
+      </ul>
+    </div>
+    <div class="split-card">
+      <div class="split-label good">🔥 The Solution</div>
+      <h3>Turn saving into a daily habit.</h3>
+      <p>LinkHabit pulls your saves into a daily queue and builds a reading streak. AI summaries, smart reminders, and a streak shield keep you on track.</p>
+      <ul class="grave-list">
+        <li>✅ Connects to Instagram, Twitter/X, TikTok + more</li>
+        <li>✅ AI generates "why this matters" for every link</li>
+        <li>✅ Streak Shield protects your progress on off days</li>
+        <li>✅ Weekly digest email of your top unread saves</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PLATFORMS -->
+<section class="section-sm">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:28px;">
+      <span class="tag" style="display:block;text-align:center">Supported Platforms</span>
+      <p style="color:var(--muted);font-size:14px;">Free tier includes the top 3. Pro unlocks everything.</p>
+    </div>
+    <div class="plat-row">
+      <div class="plat-badge"><span>📸</span> Instagram <span class="tier-tag tier-free">FREE</span></div>
+      <div class="plat-badge"><span>𝕏</span> Twitter / X <span class="tier-tag tier-free">FREE</span></div>
+      <div class="plat-badge"><span>🎵</span> TikTok <span class="tier-tag tier-free">FREE</span></div>
+      <div class="plat-badge"><span>▶️</span> YouTube <span class="tier-tag tier-pro">PRO</span></div>
+      <div class="plat-badge"><span>💼</span> LinkedIn <span class="tier-tag tier-pro">PRO</span></div>
+      <div class="plat-badge"><span>📌</span> Pinterest <span class="tier-tag tier-pro">PRO</span></div>
+      <div class="plat-badge"><span>👽</span> Reddit <span class="tier-tag tier-pro">PRO</span></div>
+      <div class="plat-badge"><span>🌐</span> Any URL <span class="tier-tag tier-pro">PRO</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="container">
+    <span class="tag reveal">Features</span>
+    <h2 class="s-title reveal">Everything you need<br/><em style="font-style:italic;color:var(--accent)">to actually read</em> what you save.</h2>
+    <p class="s-desc reveal">Not just a bookmark manager. A daily habit engine built around streaks, rewards, and consistency.</p>
+    <div class="feat-grid reveal">
+      <div class="feat-card"><div class="feat-icon">🔥</div><h4>Daily Reading Streaks</h4><p>Read one saved link a day to keep your streak alive. The longer the chain, the harder it is to break.</p></div>
+      <div class="feat-card"><div class="feat-icon">🤖</div><h4>AI Summaries</h4><p>Every link gets a 3-sentence summary so you always know what you're about to read. No more forgotten saves.</p></div>
+      <div class="feat-card"><div class="feat-icon">🛡️</div><h4>Streak Shield</h4><p>Miss a day? Streak Shield activates automatically — one off day won't erase weeks of progress.</p></div>
+      <div class="feat-card"><div class="feat-icon">📬</div><h4>Weekly Digest</h4><p>Every Sunday — your top 5 unread saves with AI summaries and streak stats delivered to your inbox.</p></div>
+      <div class="feat-card"><div class="feat-icon">🏷️</div><h4>Smart Collections</h4><p>Links are auto-tagged by topic — Finance, Fitness, Tech, Career. Build expertise in 20 minutes a day.</p></div>
+      <div class="feat-card"><div class="feat-icon">📤</div><h4>Share Your Streak</h4><p>Generate a beautiful shareable streak card. Post it — your friends will want to compete.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- HOW IT WORKS -->
+<section class="section">
+  <div class="container">
+    <span class="tag reveal">How it works</span>
+    <h2 class="s-title reveal">From saved to <em style="font-style:italic;color:var(--accent)">actually read</em><br/>in 4 steps.</h2>
+    <p class="s-desc reveal">Setup takes under 2 minutes. No credit card. No complicated integrations.</p>
+    <div class="steps">
+      <div class="step reveal"><div class="step-num">01</div><h4>Connect your platforms</h4><p>Link Instagram, Twitter/X, or TikTok with read-only OAuth. We never post or act on your behalf.</p></div>
+      <div class="step reveal rd1"><div class="step-num">02</div><h4>We import your saves</h4><p>LinkHabit pulls in your bookmarks and AI generates summaries so you know what's worth your time.</p></div>
+      <div class="step reveal rd2"><div class="step-num">03</div><h4>Build your daily queue</h4><p>Your personalised queue surfaces 3–5 links per day based on your time, topics, and what's waited longest.</p></div>
+      <div class="step reveal rd3"><div class="step-num">04</div><h4>Grow your streak</h4><p>Open your daily links. Watch your streak grow. Hit milestones. Share your progress. Never let great content die.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PRICING -->
+<section class="section" id="pricing">
+  <div class="container">
+    <span class="tag reveal" style="display:block;text-align:center">Pricing</span>
+    <h2 class="s-title reveal" style="text-align:center;max-width:100%">Simple, honest pricing.</h2>
+    <p class="s-desc reveal" style="text-align:center;margin:0 auto 32px;max-width:460px">Start free. Upgrade when ready. Cancel anytime — no questions asked.</p>
+    <div style="text-align:center">
+      <div class="billing-toggle reveal">
+        <button class="bill-btn active" id="btnMonthly" onclick="setBilling('monthly')">Monthly</button>
+        <button class="bill-btn" id="btnYearly" onclick="setBilling('yearly')">Yearly <span class="save-badge">Save 35%</span></button>
+      </div>
+    </div>
+    <div class="pricing-grid reveal">
+      <!-- FREE -->
+      <div class="plan">
+        <div class="plan-name">Habit Starter</div>
+        <div class="plan-price">$<sup></sup>0<span>/mo</span></div>
+        <div class="plan-period">Free forever · No credit card needed</div>
+        <p class="plan-desc">Perfect for building the habit before committing to a paid plan.</p>
+        <ul class="plan-features">
+          <li class="inc"><span class="check">✓</span> Instagram, Twitter/X, TikTok</li>
+          <li class="inc"><span class="check">✓</span> Save up to 50 links/month</li>
+          <li class="inc"><span class="check">✓</span> Daily reading streak</li>
+          <li class="inc"><span class="check">✓</span> 1-sentence AI summary per link</li>
+          <li class="inc"><span class="check">✓</span> 1 Streak Shield per month</li>
+          <li class="inc"><span class="check">✓</span> Weekly digest email</li>
+          <li><span class="cross">✗</span> YouTube, LinkedIn, Reddit, Any URL</li>
+          <li><span class="cross">✗</span> Unlimited saves</li>
+          <li><span class="cross">✗</span> Full AI summaries + key takeaways</li>
+          <li><span class="cross">✗</span> Smart Collections</li>
+        </ul>
+        <div class="plan-cta">
+          <a href="#signup" class="btn btn-ghost" style="width:100%;justify-content:center;">Get started free</a>
+        </div>
+      </div>
+      <!-- PRO -->
+      <div class="plan popular">
+        <div class="popular-badge">Most Popular</div>
+        <div class="plan-name">Habit Builder</div>
+        <div class="plan-price" id="proPrice">$<sup></sup>4.99<span>/mo</span></div>
+        <div class="plan-price-orig" id="proOrig" style="display:none"></div>
+        <div class="plan-period" id="proPeriod">Billed monthly · Cancel anytime</div>
+        <p class="plan-desc">For readers serious about actually reading every great thing they save.</p>
+        <ul class="plan-features">
+          <li class="inc"><span class="check">✓</span> Everything in Free</li>
+          <li class="inc"><span class="check">✓</span> <strong>All platforms</strong> + any URL</li>
+          <li class="inc"><span class="check">✓</span> <strong>Unlimited</strong> link saving</li>
+          <li class="inc"><span class="check">✓</span> Full AI summary + 3 key takeaways</li>
+          <li class="inc"><span class="check">✓</span> Smart Collections (auto-tagging)</li>
+          <li class="inc"><span class="check">✓</span> 3 Streak Shields per month</li>
+          <li class="inc"><span class="check">✓</span> Custom streak sharing cards</li>
+          <li class="inc"><span class="check">✓</span> Priority support</li>
+          <li><span class="cross">✗</span> Browser extension</li>
+          <li><span class="cross">✗</span> Team / family sharing</li>
+        </ul>
+        <div class="plan-cta">
+          <!--
+          ╔══════════════════════════════════════════════════╗
+          ║  LEMON SQUEEZY / PADDLE SETUP                   ║
+          ║  1. Sign up at lemonsqueezy.com (recommended)   ║
+          ║  2. Create product "LinkHabit Pro" $4.99/mo     ║
+          ║  3. Create product "LinkHabit Pro" $39/yr       ║
+          ║  4. Get your checkout URLs and replace below    ║
+          ╚══════════════════════════════════════════════════╝
+          -->
+          <a href="https://YOUR-STORE.lemonsqueezy.com/checkout/REPLACE-PRO-MONTHLY"
+             id="proBtn" class="btn btn-primary"
+             style="width:100%;justify-content:center;" target="_blank">
+            Start Pro — $4.99/mo →
+          </a>
+        </div>
+      </div>
+      <!-- POWER -->
+      <div class="plan">
+        <div class="plan-name">Habit Master</div>
+        <div class="plan-price" id="powerPrice">$<sup></sup>9.99<span>/mo</span></div>
+        <div class="plan-price-orig" id="powerOrig" style="display:none"></div>
+        <div class="plan-period" id="powerPeriod">Billed monthly · Cancel anytime</div>
+        <p class="plan-desc">For power users who want the full system — extension, team sharing, and deep insights.</p>
+        <ul class="plan-features">
+          <li class="inc"><span class="check">✓</span> Everything in Pro</li>
+          <li class="inc"><span class="check">✓</span> <strong>Browser extension</strong> (Chrome + Safari)</li>
+          <li class="inc"><span class="check">✓</span> AI weekly reading insights report</li>
+          <li class="inc"><span class="check">✓</span> <strong>Unlimited</strong> Streak Shields</li>
+          <li class="inc"><span class="check">✓</span> Export to CSV / Notion</li>
+          <li class="inc"><span class="check">✓</span> Team / family sharing (up to 5)</li>
+          <li class="inc"><span class="check">✓</span> Early access to new features</li>
+          <li class="inc"><span class="check">✓</span> Dedicated support</li>
+          <li class="inc"><span class="check">✓</span> Reading streak leaderboard</li>
+          <li class="inc"><span class="check">✓</span> Custom reminder schedule</li>
+        </ul>
+        <div class="plan-cta">
+          <a href="https://YOUR-STORE.lemonsqueezy.com/checkout/REPLACE-POWER-MONTHLY"
+             id="powerBtn" class="btn btn-ghost"
+             style="width:100%;justify-content:center;" target="_blank">
+            Start Power — $9.99/mo →
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="stripe-note reveal">🔒 Payments secured · SSL encrypted · Cancel anytime in one click</div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SECURITY -->
+<section class="section" id="security">
+  <div class="container">
+    <span class="tag reveal">Privacy & Security</span>
+    <h2 class="s-title reveal">We take your data <em style="font-style:italic;color:var(--accent)">seriously.</em></h2>
+    <p class="s-desc reveal">Read-only access, minimal permissions, encrypted storage. No data selling. Ever.</p>
+    <div class="sec-grid reveal">
+      <div class="sec-card"><div style="font-size:24px;flex-shrink:0">🔑</div><div><h5>Read-only OAuth only</h5><p>We request the minimum permissions required. We can see your saves — we can never post, follow, or act on your behalf.</p></div></div>
+      <div class="sec-card"><div style="font-size:24px;flex-shrink:0">🚫</div><div><h5>Zero data selling</h5><p>Your bookmarks are yours. We never sell, share, or monetise your saved content or reading habits. Ever.</p></div></div>
+      <div class="sec-card"><div style="font-size:24px;flex-shrink:0">🔒</div><div><h5>Encrypted in transit & at rest</h5><p>TLS 1.3 in transit, AES-256 at rest. OAuth tokens in secure httpOnly cookies — never localStorage.</p></div></div>
+      <div class="sec-card"><div style="font-size:24px;flex-shrink:0">🗑️</div><div><h5>Delete anytime</h5><p>Disconnect or delete your account in one tap. All data purged within 24 hours. No questions asked.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FAQ -->
+<section class="section" id="faq">
+  <div class="container">
+    <span class="tag reveal" style="display:block;text-align:center">FAQ</span>
+    <h2 class="s-title reveal" style="text-align:center">Got questions?</h2>
+    <p class="s-desc reveal" style="text-align:center;margin:0 auto 48px;max-width:400px">Everything you need to know about LinkHabit.</p>
+    <div class="faq-list reveal">
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Is the free plan actually free forever? <span class="faq-icon">+</span></button>
+        <div class="faq-a">Yes — completely. No credit card required. No trial period. The free plan stays free indefinitely. You only upgrade if you want more than 3 platforms or more than 50 saves per month.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">How does payment work? Can I cancel anytime? <span class="faq-icon">+</span></button>
+        <div class="faq-a">Payments are processed securely via Lemon Squeezy. Cancel anytime from your account settings in one click. You keep Pro access until the end of your billing period, then drop to the free tier. No hidden fees, no cancellation charges.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">What happens to my data if I cancel? <span class="faq-icon">+</span></button>
+        <div class="faq-a">Your reading history stays in your free account. If you delete your account entirely, all data is permanently purged within 24 hours. Pro/Power users can export their reading history as a CSV before cancelling.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Does LinkHabit post anything to my social accounts? <span class="faq-icon">+</span></button>
+        <div class="faq-a">Absolutely not. We only ever request read-only OAuth permissions. LinkHabit can only see your saved posts and bookmarks — it cannot post, like, follow, comment, or take any action on your social accounts. Ever.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">What is a Streak Shield and how does it work? <span class="faq-icon">+</span></button>
+        <div class="faq-a">A Streak Shield protects your reading streak if you miss a day. Instead of resetting to zero, your streak pauses and continues the next day. Free: 1 shield/month, Pro: 3/month, Power: unlimited.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Is there a yearly discount? <span class="faq-icon">+</span></button>
+        <div class="faq-a">Yes! Paying yearly saves you 35%. Pro goes from $4.99/mo to $39/year. Power goes from $9.99/mo to $79/year. Toggle the billing switch above the pricing table to see yearly prices.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     EMAIL SIGNUP — MAILERLITE (YOUR ACTUAL FORM, FULLY STYLED)
+════════════════════════════════════════════════════════════ -->
+<section class="section cta-section" id="signup">
+  <div class="container">
+    <span class="tag" style="display:block;text-align:center">Get early access</span>
+    <h2 class="s-title" style="text-align:center;max-width:520px;margin:0 auto 14px">Your bookmarks<br/>deserve better.</h2>
+    <p class="s-desc" style="text-align:center;margin:0 auto 36px;max-width:420px">Join the waitlist. Be first in line when we launch. Free forever.</p>
+
+    <!-- MailerLite Form (restyled to match LinkHabit dark theme) -->
+    <div id="mlb2-41720642" class="ml-form-embedContainer ml-subscribe-form ml-subscribe-form-41720642">
+      <div class="ml-form-align-center">
+        <div class="ml-form-embedWrapper embedForm">
+          <div class="ml-form-embedBody ml-form-embedBodyDefault row-form">
+            <div class="ml-form-embedContent" style="display:none">
+              <h4>Newsletter</h4>
+              <p>Signup for news and special offers!</p>
+            </div>
+            <form class="ml-block-form"
+                  action="https://assets.mailerlite.com/jsonp/2376456/forms/188382242852046806/subscribe"
+                  data-code=""
+                  method="post"
+                  target="_blank">
+              <div class="ml-form-formContent">
+                <div class="ml-form-fieldRow ml-last-item">
+                  <div class="ml-field-group ml-field-email ml-validate-email ml-validate-required">
+                    <input
+                      aria-label="email"
+                      aria-required="true"
+                      type="email"
+                      class="form-control"
+                      name="fields[email]"
+                      placeholder="your@email.com"
+                      autocomplete="email"
+                    />
+                  </div>
+                </div>
+              </div>
+              <input type="hidden" name="ml-submit" value="1" />
+              <div class="ml-form-embedSubmit">
+                <button type="submit" class="primary">🔥 Rescue My Bookmarks →</button>
+                <button disabled="disabled" style="display:none;" type="button" class="loading">
+                  <div class="ml-form-embedSubmitLoad"></div>
+                  <span class="sr-only">Loading...</span>
+                </button>
+              </div>
+              <input type="hidden" name="anticsrf" value="true" />
+            </form>
+          </div>
+          <!-- Success state -->
+          <div class="ml-form-successBody row-success" style="display:none">
+            <div class="ml-form-successContent">
+              <h4>🔥 You're on the list!</h4>
+              <p>Check your email to confirm your spot. We'll be in touch when we launch.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- End MailerLite Form -->
+
+    <p class="cta-fine">No credit card · No spam · Unsubscribe anytime</p>
+
+    <div class="stats-row">
+      <div style="text-align:center">
+        <div style="font-family:var(--serif);font-size:36px;color:var(--accent)">2,341</div>
+        <div style="font-size:11px;color:var(--muted);font-family:var(--mono)">BOOKMARKS RESCUED THIS WEEK</div>
+      </div>
+      <div class="stat-div"></div>
+      <div style="text-align:center">
+        <div style="font-family:var(--serif);font-size:36px;color:var(--green)">847</div>
+        <div style="font-size:11px;color:var(--muted);font-family:var(--mono)">ACTIVE STREAKS RIGHT NOW</div>
+      </div>
+      <div class="stat-div"></div>
+      <div style="text-align:center">
+        <div style="font-family:var(--serif);font-size:36px;color:var(--accent2)">94%</div>
+        <div style="font-size:11px;color:var(--muted);font-family:var(--mono)">WOULD RECOMMEND A FRIEND</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-inner">
     <a href="#" class="nav-logo">
       <div class="nav-logo-icon">🔗</div>
       <span class="nav-logo-text">LinkHabit</span>
     </a>
-    <div class="nav-links">
-      <a href="#features" class="nav-link">Features</a>
-      <a href="#how" class="nav-link">How it works</a>
-      <a href="#security" class="nav-link">Security</a>
-      <a href="#early-access" class="btn btn-primary" style="padding:8px 18px;font-size:13px;">Rescue My Bookmarks →</a>
+    <div class="foot-links">
+      <a href="/privacy.html" class="foot-link">Privacy Policy</a>
+      <a href="/terms.html"   class="foot-link">Terms of Service</a>
+      <a href="#pricing"      class="foot-link">Pricing</a>
+      <a href="mailto:hello@linkhabit.app" class="foot-link">Contact</a>
     </div>
-  </nav>
-
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-bg">
-      <div class="hero-orb hero-orb-1"></div>
-      <div class="hero-orb hero-orb-2"></div>
-      <div class="hero-orb hero-orb-3"></div>
-    </div>
-    <div class="container" style="display:flex;align-items:center;width:100%;position:relative;">
-      <div class="hero-content">
-        <div class="hero-badge">
-          <span class="pulse-dot"></span>
-          Now in public beta · Free forever
-        </div>
-
-        <h1 class="hero-title">
-          Stop letting<br/><em>great content</em><br/>die in your<br/>bookmarks.
-        </h1>
-
-        <p class="hero-sub">
-          LinkHabit converts your Instagram saves, Twitter/X bookmarks, and TikTok favourites into a daily reading streak — with AI summaries, smart reminders, and a habit that actually sticks.
-        </p>
-
-        <div class="hero-cta">
-          <a href="#early-access" class="btn btn-primary btn-lg">🔥 Rescue My Bookmarks →</a>
-          <a href="#how" class="btn btn-ghost btn-lg">See how it works</a>
-        </div>
-
-        <div class="hero-social-proof">
-          <div class="avatars">
-            <div class="avatar">🧑</div>
-            <div class="avatar">👩</div>
-            <div class="avatar">👨</div>
-            <div class="avatar">🧑‍🦱</div>
-            <div class="avatar">👩‍🦰</div>
-          </div>
-          <p class="proof-text"><strong>2,300+ bookmarks</strong> rescued this week</p>
-        </div>
-
-        <div style="height:20px"></div>
-
-        <div class="live-counter">
-          <span class="pulse-dot"></span>
-          <span>Links saved today</span>
-          <span class="counter-num" id="live-count">1,247</span>
-        </div>
-      </div>
-
-      <!-- Phone Preview -->
-      <div class="hero-preview">
-        <div class="phone-frame">
-          <div class="phone-notch"></div>
-
-          <div class="phone-streak-bar">
-            <div>
-              <div class="streak-label">CURRENT STREAK</div>
-              <div class="streak-num">47</div>
-              <div class="streak-label">days in a row 🔥</div>
-            </div>
-            <div class="streak-emoji">🏆</div>
-          </div>
-
-          <div style="font-size:11px;color:var(--muted);font-family:var(--font-mono);margin-bottom:10px;">TODAY'S READS — 3 of 5</div>
-
-          <div class="phone-card">
-            <div class="card-platform">
-              <div class="platform-dot" style="background:#e1306c"></div>
-              Instagram Save
-            </div>
-            <div class="card-title">10 lessons from building a $1M side project in 18 months</div>
-            <div class="card-meta">
-              <span>~4 min read</span>
-              <button class="card-read-btn">Read ✓</button>
-            </div>
-          </div>
-
-          <div class="phone-card" style="opacity:0.6">
-            <div class="card-platform">
-              <div class="platform-dot" style="background:#1da1f2"></div>
-              Twitter/X Bookmark
-            </div>
-            <div class="card-title">The compound effect in personal finance — a thread</div>
-            <div class="card-meta">
-              <span>~2 min read</span>
-              <button class="card-read-btn" style="background:var(--bg3);color:var(--muted)">Pending</button>
-            </div>
-          </div>
-
-          <div style="height:8px"></div>
-          <div style="font-size:10px;color:var(--muted);text-align:center;font-family:var(--font-mono)">
-            🔒 Read-only access · Zero data selling
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- PROBLEM/SOLUTION -->
-  <section class="problem-section">
-    <div class="split-grid">
-      <div class="split-card">
-        <div class="split-card-label bad">⚰️ The Problem</div>
-        <h3>Your bookmarks are a graveyard.</h3>
-        <p>You save dozens of links a week with good intentions. Then life happens. 97% of saved links are never opened again.</p>
-        <ul class="graveyard-list">
-          <li><span class="grave-icon">💀</span> "How to negotiate a raise" — saved 8 months ago</li>
-          <li><span class="grave-icon">💀</span> "The morning routine that changed my life" — never read</li>
-          <li><span class="grave-icon">💀</span> "Deep work: why focus is your superpower" — forgotten</li>
-          <li><span class="grave-icon">💀</span> "10 investing principles for beginners" — still pending</li>
-        </ul>
-      </div>
-      <div class="split-card">
-        <div class="split-card-label good">🔥 The Solution</div>
-        <h3>Turn saving into a daily habit.</h3>
-        <p>LinkHabit pulls your saves into a daily queue and builds a reading streak. Every link you open grows your chain. Break it and feel it.</p>
-        <ul class="graveyard-list">
-          <li><span class="grave-icon">✅</span> Connects to Instagram, Twitter/X, TikTok</li>
-          <li><span class="grave-icon">✅</span> AI generates a 3-sentence "why this matters" summary</li>
-          <li><span class="grave-icon">✅</span> Streak Shield protects your progress on off days</li>
-          <li><span class="grave-icon">✅</span> Weekly digest email of your top unread saves</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- PLATFORMS -->
-  <section class="section-sm">
-    <div class="container">
-      <div style="text-align:center;margin-bottom:32px;">
-        <span class="section-tag">Platforms</span>
-        <p style="color:var(--muted);font-size:14px;">Works with every major social platform</p>
-      </div>
-      <div class="platforms-row">
-        <div class="platform-badge"><span>📸</span> Instagram</div>
-        <div class="platform-badge"><span>𝕏</span> Twitter / X</div>
-        <div class="platform-badge"><span>🎵</span> TikTok</div>
-        <div class="platform-badge"><span>▶️</span> YouTube</div>
-        <div class="platform-badge"><span>💼</span> LinkedIn</div>
-        <div class="platform-badge"><span>🌐</span> Any URL</div>
-      </div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- FEATURES -->
-  <section class="section" id="features">
-    <div class="container">
-      <span class="section-tag reveal">Features</span>
-      <h2 class="section-title reveal">Everything you need<br/><em style="font-style:italic;color:var(--accent)">to actually read</em> what you save.</h2>
-      <p class="section-desc reveal">Not just a bookmark manager. A daily habit engine built around the psychology of streaks, rewards, and consistency.</p>
-
-      <div class="features-grid reveal">
-        <div class="feature-card">
-          <div class="feature-icon">🔥</div>
-          <h4>Daily Reading Streaks</h4>
-          <p>Read one saved link a day to keep your streak alive. The longer your chain, the harder it is to break — that's the psychology working for you.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">🤖</div>
-          <h4>AI Summaries</h4>
-          <p>Every saved link gets a 3-sentence AI summary so you always know what you're about to read. No more opening a link and forgetting why you saved it.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">🛡️</div>
-          <h4>Streak Shield</h4>
-          <p>Miss a day because life happened? Your Streak Shield activates automatically — one off day won't erase weeks of progress.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">📬</div>
-          <h4>Weekly Digest</h4>
-          <p>Every Sunday you'll get an email with your top 5 unread saves, your streak stats, and a gentle nudge to get back in the habit.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">🏷️</div>
-          <h4>Smart Collections</h4>
-          <p>Links are auto-tagged by topic — Finance, Fitness, Tech, Career. Build topic-specific streaks and become an expert in 20 minutes a day.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">📤</div>
-          <h4>Share Your Streak</h4>
-          <p>Generate a beautiful shareable card showing your reading streak. Post it on Instagram or Twitter — your friends will want to compete.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- HOW IT WORKS -->
-  <section class="section" id="how">
-    <div class="container">
-      <span class="section-tag reveal">How it works</span>
-      <h2 class="section-title reveal">From saved to <em style="font-style:italic;color:var(--accent)">actually read</em><br/>in 4 steps.</h2>
-      <p class="section-desc reveal">Setup takes under 2 minutes. No credit card. No complicated integrations.</p>
-
-      <div class="steps">
-        <div class="step reveal">
-          <div class="step-num">01</div>
-          <h4>Connect your platforms</h4>
-          <p>Link your Instagram, Twitter/X, or TikTok with read-only OAuth. We never post on your behalf or store your credentials.</p>
-        </div>
-        <div class="step reveal reveal-delay-1">
-          <div class="step-num">02</div>
-          <h4>We import your saves</h4>
-          <p>LinkHabit pulls in your existing bookmarks and saved posts. AI generates summaries for each one so you know what's worth your time.</p>
-        </div>
-        <div class="step reveal reveal-delay-2">
-          <div class="step-num">03</div>
-          <h4>Build your daily queue</h4>
-          <p>Each day, your personalized queue surfaces 3–5 links based on how long you have, what topics you care about, and what's been waiting longest.</p>
-        </div>
-        <div class="step reveal reveal-delay-3">
-          <div class="step-num">04</div>
-          <h4>Grow your streak</h4>
-          <p>Open and read your daily links. Watch your streak grow. Hit milestones. Share your progress. Never let great content die again.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- STREAK VISUAL -->
-  <section class="section-sm">
-    <div class="container">
-      <div class="streak-showcase reveal">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
-          <div>
-            <span class="section-tag" style="margin-bottom:8px">Your reading history</span>
-            <div style="font-family:var(--font-serif);font-size:28px;">47-day streak 🔥</div>
-          </div>
-          <div style="display:flex;gap:20px;flex-wrap:wrap;">
-            <div style="text-align:center">
-              <div style="font-family:var(--font-mono);font-size:24px;color:var(--green)">183</div>
-              <div style="font-size:11px;color:var(--muted);font-family:var(--font-mono)">LINKS READ</div>
-            </div>
-            <div style="text-align:center">
-              <div style="font-family:var(--font-mono);font-size:24px;color:var(--accent)">47</div>
-              <div style="font-size:11px;color:var(--muted);font-family:var(--font-mono)">DAY STREAK</div>
-            </div>
-            <div style="text-align:center">
-              <div style="font-family:var(--font-mono);font-size:24px;color:var(--accent2)">2</div>
-              <div style="font-size:11px;color:var(--muted);font-family:var(--font-mono)">SHIELDS LEFT</div>
-            </div>
-          </div>
-        </div>
-        <div id="streak-grid-label" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:16px;margin-bottom:4px;">
-          <div class="streak-day-label">SUN</div>
-          <div class="streak-day-label">MON</div>
-          <div class="streak-day-label">TUE</div>
-          <div class="streak-day-label">WED</div>
-          <div class="streak-day-label">THU</div>
-          <div class="streak-day-label">FRI</div>
-          <div class="streak-day-label">SAT</div>
-        </div>
-        <div class="streak-grid" id="streakGrid"></div>
-      </div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- SECURITY -->
-  <section class="section" id="security">
-    <div class="container">
-      <span class="section-tag reveal">Privacy & Security</span>
-      <h2 class="section-title reveal">We take your data<br/><em style="font-style:italic;color:var(--accent)">seriously.</em></h2>
-      <p class="section-desc reveal">Built with security-first principles. Read-only access, minimal permissions, no data selling — ever.</p>
-
-      <div class="security-grid reveal">
-        <div class="security-card">
-          <div class="security-icon">🔑</div>
-          <div>
-            <h5>Read-only OAuth only</h5>
-            <p>We request the minimum permissions required. We can see your saves — we can never post, follow, or act on your behalf.</p>
-          </div>
-        </div>
-        <div class="security-card">
-          <div class="security-icon">🚫</div>
-          <div>
-            <h5>Zero data selling</h5>
-            <p>Your bookmarks are yours. We never sell, share, or monetize your saved content or reading habits. Ever. Full stop.</p>
-          </div>
-        </div>
-        <div class="security-card">
-          <div class="security-icon">🔒</div>
-          <div>
-            <h5>Encrypted in transit & at rest</h5>
-            <p>All data is encrypted with TLS 1.3 in transit and AES-256 at rest. Your tokens are stored in secure httpOnly cookies — never localStorage.</p>
-          </div>
-        </div>
-        <div class="security-card">
-          <div class="security-icon">🗑️</div>
-          <div>
-            <h5>Delete anytime</h5>
-            <p>Disconnect a platform or delete your account entirely in one tap. We purge all your data within 24 hours. No questions asked.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- CTA -->
-  <section class="section cta-section" id="early-access">
-    <div class="container">
-      <span class="section-tag">Get early access</span>
-      <h2 class="section-title">Your bookmarks<br/>deserve better.</h2>
-      <p class="section-desc">Join thousands of readers building the habit of actually reading what they save. Free forever.</p>
-
-      <div class="input-row">
-        <input type="email" class="email-input" placeholder="your@email.com" id="emailInput" />
-        <button class="btn btn-primary" onclick="handleSignup()" style="white-space:nowrap">
-          Rescue My Bookmarks →
-        </button>
-      </div>
-      <p class="cta-fine">No credit card · No spam · Unsubscribe anytime</p>
-
-      <div style="height:48px"></div>
-
-      <div style="display:flex;align-items:center;justify-content:center;gap:32px;flex-wrap:wrap;">
-        <div style="text-align:center">
-          <div style="font-family:var(--font-serif);font-size:36px;color:var(--accent)">2,341</div>
-          <div style="font-size:12px;color:var(--muted);font-family:var(--font-mono)">BOOKMARKS RESCUED THIS WEEK</div>
-        </div>
-        <div style="width:1px;height:48px;background:var(--border)"></div>
-        <div style="text-align:center">
-          <div style="font-family:var(--font-serif);font-size:36px;color:var(--green)">847</div>
-          <div style="font-size:12px;color:var(--muted);font-family:var(--font-mono)">ACTIVE STREAKS RIGHT NOW</div>
-        </div>
-        <div style="width:1px;height:48px;background:var(--border)"></div>
-        <div style="text-align:center">
-          <div style="font-family:var(--font-serif);font-size:36px;color:var(--accent2)">94%</div>
-          <div style="font-size:12px;color:var(--muted);font-family:var(--font-mono)">WOULD RECOMMEND TO A FRIEND</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- FOOTER -->
-  <footer>
-    <div class="footer-inner">
-      <a href="#" class="nav-logo" style="text-decoration:none">
-        <div class="nav-logo-icon">🔗</div>
-        <span class="nav-logo-text">LinkHabit</span>
-      </a>
-      <div class="footer-links">
-        <a href="/privacy" class="footer-link">Privacy Policy</a>
-        <a href="/terms" class="footer-link">Terms of Service</a>
-        <a href="/security" class="footer-link">Security</a>
-        <a href="mailto:hello@linkhabit.app" class="footer-link">Contact</a>
-      </div>
-      <p class="footer-copy">© 2026 LinkHabit · Built with 🔥 for bookmark hoarders</p>
-    </div>
-  </footer>
-
-  <!-- TOAST -->
-  <div class="toast" id="toast">
-    ✅ You're on the list! Check your email.
+    <p class="foot-copy">© 2026 LinkHabit · Built 🔥 for bookmark hoarders</p>
   </div>
+</footer>
 
-  <script>
-    // ── SCROLL REVEAL ──────────────────────────────────────────────
-    const revealEls = document.querySelectorAll('.reveal');
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) { e.target.classList.add('visible'); }
-      });
-    }, { threshold: 0.12 });
-    revealEls.forEach(el => observer.observe(el));
+<!-- MailerLite JS (required for form submission + success state) -->
+<script src="https://groot.mailerlite.com/js/w/webforms.min.js?vb397d78ebaa8a0f631d35384c46d781b" type="text/javascript"></script>
+<script>
+  function ml_webform_success_41720642() {
+    var $ = ml_jQuery || jQuery;
+    $('.ml-subscribe-form-41720642 .row-success').show();
+    $('.ml-subscribe-form-41720642 .row-form').hide();
+  }
+</script>
+<script>fetch("https://assets.mailerlite.com/jsonp/2376456/forms/188382242852046806/takel")</script>
 
-    // ── LIVE COUNTER ───────────────────────────────────────────────
-    let count = 1247;
-    setInterval(() => {
-      count += Math.floor(Math.random() * 3);
-      const el = document.getElementById('live-count');
-      if (el) el.textContent = count.toLocaleString();
-    }, 4000);
+<script>
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
 
-    // ── STREAK GRID ────────────────────────────────────────────────
-    const grid = document.getElementById('streakGrid');
-    if (grid) {
-      const pattern = [
-        'fire','fire','fire','fire','fire','fire','fire',
-        'fire','fire','fire','fire','fire','fire','fire',
-        'fire','fire','fire','fire','fire','fire','fire',
-        'fire','fire','fire','fire','fire','fire','fire',
-        'fire','fire','fire','fire','fire','fire','fire',
-        'fire','fire','fire','fire','fire','fire','fire',
-        'read','read','read','fire','fire','','',
-      ];
-      pattern.forEach((state, i) => {
-        const d = document.createElement('div');
-        d.className = 'streak-day' + (state ? ' ' + state : '');
-        d.title = state === 'fire' ? '🔥 Read!' : state === 'read' ? '✅ Read' : '—';
-        grid.appendChild(d);
-      });
-    }
+/* SCROLL REVEAL */
+const obs = new IntersectionObserver(
+  es => es.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); }),
+  { threshold: 0.1 }
+);
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 
-    // ── SIGNUP ─────────────────────────────────────────────────────
-    function handleSignup() {
-      const email = document.getElementById('emailInput').value.trim();
-      if (!email || !email.includes('@')) {
-        document.getElementById('emailInput').style.borderColor = '#ef4444';
-        setTimeout(() => {
-          document.getElementById('emailInput').style.borderColor = '';
-        }, 1500);
-        return;
-      }
-      const toast = document.getElementById('toast');
-      toast.classList.add('show');
-      document.getElementById('emailInput').value = '';
-      setTimeout(() => toast.classList.remove('show'), 3500);
-    }
+/* LIVE COUNTER */
+let count = 1247;
+setInterval(() => {
+  count += Math.floor(Math.random() * 3);
+  const el = document.getElementById('liveCount');
+  if(el) el.textContent = count.toLocaleString();
+}, 4200);
 
-    document.getElementById('emailInput').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') handleSignup();
-    });
+/* SMOOTH NAV */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const t = document.getElementById(a.getAttribute('href').slice(1));
+    if(t){ e.preventDefault(); t.scrollIntoView({behavior:'smooth',block:'start'}); }
+  });
+});
 
-    // ── SMOOTH NAV ─────────────────────────────────────────────────
-    document.querySelectorAll('a[href^="#"]').forEach(a => {
-      a.addEventListener('click', e => {
-        const id = a.getAttribute('href').slice(1);
-        const target = document.getElementById(id);
-        if (target) {
-          e.preventDefault();
-          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      });
-    });
-  </script>
+/* BILLING TOGGLE */
+const P = {
+  monthly:{
+    pro:  {price:'4.99',period:'Billed monthly · Cancel anytime',orig:'',btn:'Start Pro — $4.99/mo →',link:'https://YOUR-STORE.lemonsqueezy.com/checkout/REPLACE-PRO-MONTHLY'},
+    power:{price:'9.99',period:'Billed monthly · Cancel anytime',orig:'',btn:'Start Power — $9.99/mo →',link:'https://YOUR-STORE.lemonsqueezy.com/checkout/REPLACE-POWER-MONTHLY'}
+  },
+  yearly:{
+    pro:  {price:'3.25',period:'Billed $39/year · Save 35% vs monthly',orig:'was $59.88/yr',btn:'Start Pro — $39/yr →',link:'https://YOUR-STORE.lemonsqueezy.com/checkout/REPLACE-PRO-YEARLY'},
+    power:{price:'6.58',period:'Billed $79/year · Save 34% vs monthly',orig:'was $119.88/yr',btn:'Start Power — $79/yr →',link:'https://YOUR-STORE.lemonsqueezy.com/checkout/REPLACE-POWER-YEARLY'}
+  }
+};
+function setBilling(type){
+  const d=P[type];
+  document.getElementById('btnMonthly').classList.toggle('active',type==='monthly');
+  document.getElementById('btnYearly').classList.toggle('active',type==='yearly');
+  document.getElementById('proPrice').innerHTML=`$<sup></sup>${d.pro.price}<span>/mo</span>`;
+  document.getElementById('proPeriod').textContent=d.pro.period;
+  document.getElementById('proBtn').textContent=d.pro.btn;
+  document.getElementById('proBtn').href=d.pro.link;
+  const po=document.getElementById('proOrig');
+  po.textContent=d.pro.orig;po.style.display=d.pro.orig?'block':'none';
+  document.getElementById('powerPrice').innerHTML=`$<sup></sup>${d.power.price}<span>/mo</span>`;
+  document.getElementById('powerPeriod').textContent=d.power.period;
+  document.getElementById('powerBtn').textContent=d.power.btn;
+  document.getElementById('powerBtn').href=d.power.link;
+  const wo=document.getElementById('powerOrig');
+  wo.textContent=d.power.orig;wo.style.display=d.power.orig?'block':'none';
+}
+
+/* FAQ */
+function toggleFaq(btn){
+  const item=btn.closest('.faq-item');
+  const open=item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i=>i.classList.remove('open'));
+  if(!open) item.classList.add('open');
+}
+</script>
 </body>
 </html>
